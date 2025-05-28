@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+  <title>Login - Nava</title>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor');
+    });
+
+    socket.on('status', (data) => {
+      document.getElementById("status1Label").innerText = `Aguardando Atendimento: ${data.contagem['Aguardando Atendimento']}`;
+      document.getElementById("status2Label").innerText = `Em Atendimento: ${data.contagem['Em Atendimento']}`;
+      document.getElementById("status3Label").innerText = `Aguardando Fornecedor: ${data.contagem['Aguardando Fornecedor']}`;
+      document.getElementById("status4Label").innerText = `Reaberto: ${data.contagem['Reaberto']}`;
+      document.getElementById("totalLabel").innerText = `📦 Total de Chamados: ${data.total}`;
+      document.getElementById("slaLabel").innerText = `⏱️ Chamados SLA próximos: ${data.sla}`;
+    });
+
+    socket.on('error', (data) => {
+      alert('Erro ao atualizar: ' + data.message);
+    });
+
+    function atualizarChamados() {
+      socket.emit('atualizar');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Login e Cadastro -->
+  <div class="login-cadastro-container">
+    <!-- Login -->
+    <div id="login-section" class="login-section">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Usuário" autocomplete="off" />
+      <input type="password" id="loginPassword" placeholder="Senha" autocomplete="off" />
+      <button onclick="login()">Entrar</button>
+      <div id="loginError" class="restricted">Usuário ou senha incorretos!</div>
+      <p class="toggle-text">Não tem uma conta? <a href="#" onclick="mostrarFormularioCadastro()">Cadastre-se</a></p>
+    </div>
+
+    <!-- Cadastro -->
+    <div id="cadastro-section" class="cadastro-section" style="display: none;">
+      <h2>Cadastro</h2>
+      <form autocomplete="off" onsubmit="return false;">
+        <input type="text" id="cadastroUsername" placeholder="Usuário (Ex: nome.nome)" autocomplete="off" />
+        <input type="password" id="cadastroPassword" placeholder="Senha (mínimo 8 caracteres)" autocomplete="new-password" />
+        <button onclick="cadastrarUsuario()">Cadastrar</button>
+      </form>
+      <div id="cadastroMensagem" class="restricted"></div>
+      <p class="toggle-text">Já tem uma conta? <a href="#" onclick="mostrarLogin()">Voltar para login</a></p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav id="nav-bar" style="display:none;">
+    <div id="logo">
+      <img src="nava.jpg" alt="Logo da Empresa" />
+      <h1>Nava: Technology for Business</h1>
+    </div>
+    <div id="nav-links">
+      <a onclick="mostrarSecao('quem-somos')">Quem Somos</a>
+      <a onclick="mostrarSecao('chamados')">Chamados</a> 
+      <a onclick="mostrarSecao('redes')">Redes</a>
+      <a onclick="mostrarSecao('consultas')">Consultas</a>
+      <a onclick="mostrarSecao('dashboard')">Dashboard</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="quem-somos" class="section">
+  
+      <!-- 1. Imagem de fundo com o título "Quem Somos" -->
+      <div id="noc-imagem">Quem Somos</div>
+  
+      <!-- 2. Texto descritivo sobre o site -->
+      <div class="descricao-quem-somos">
+        <h3>Sobre este site</h3>
+        <p>
+          Este site foi desenvolvido com o objetivo de monitorar e gerenciar chamados técnicos de forma eficiente, proporcionando visibilidade em tempo real dos atendimentos.
+        </p>
+        <p>
+          Criado por um desenvolvedor do time NOC, o projeto começou em abril de 2025 e vem sendo atualizado constantemente para atender às necessidades operacionais da empresa.
+        </p>
+        <p>
+          Nosso objetivo é garantir que os dados estejam sempre acessíveis, que os chamados críticos recebam atenção rápida e que a comunicação entre as áreas seja facilitada.
+        </p>
+        <p>
+          Desenvolvedor: Maicon Manoel Costa Pinto.
+        </p>
+      </div>
+  
+      <!-- 3. Imagem ilustrativa adicional -->
+      <div class="imagem-quem-somos">
+        <img src="Quem-Somos.png" alt="Quem Somos - Equipe ou Conceito" />
+      </div>
+  
+    </section>
+  </main>  
+
+<!-- Seção Chamados -->
+<section id="chamados" class="section" aria-labelledby="titulo-chamados">
+  <div class="chamados-section">
+    <div class="container">
+      <h1 id="titulo-chamados">📊 Monitoramento Jira</h1>
+
+      <div class="status-container" role="status">
+        <p id="statusLabel">⏳ Aguardando atualização...</p>
+      </div>
+
+      <div class="feedback-container">
+        <p id="feedbackLabel">🔎 Aqui você verá os resultados</p>
+      </div>
+
+      <div class="status-counters">
+        <article class="status-item">
+          <p id="status1Label">Aguardando Atendimento: 0</p>
+          <button class="view-button" type="button">Visualizar</button>
+        </article>
+
+        <article class="status-item">
+          <p id="status2Label">Em Atendimento: 0</p>
+          <button class="view-button" type="button">Visualizar</button>
+        </article>
+
+        <article class="status-item">
+          <p id="status3Label">Aguardando Fornecedor: 0</p>
+          <button class="view-button" type="button">Visualizar</button>
+        </article>
+
+        <article class="status-item">
+          <p id="status4Label">Reaberto: 0</p>
+          <button class="view-button" type="button">Visualizar</button>
+        </article>
+      </div>
+
+      <div class="total-container">
+        <p id="totalLabel">📦 Total de Chamados: 0</p>
+      </div>
+
+      <div class="sla-container">
+        <p id="slaLabel">⏱️ Chamados SLA próximos: 0</p>
+      </div>
+
+      <div class="buttons-container">
+        <button class="action-button" id="updateButton" type="button" onclick="atualizarChamados()">🔄 Atualizar Agora</button>
+        <button class="action-button" id="slaButton" type="button">🚨 SLA 🚨</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Seção Consultas -->
+<section id="consultas" class="section" aria-labelledby="titulo-consultas">
+  <h2 id="titulo-consultas">🔍 Consultas e Cadastro de Hosts</h2>
+
+  <!-- Consulta -->
+  <form class="form-group" onsubmit="return false;" aria-label="Consulta de Host">
+    <label for="consultaHost" class="visually-hidden">Host</label>
+    <input type="text" id="consultaHost" placeholder="Digite o host" />
+    <button type="button" onclick="consultarHost()">Consultar</button>
+    <div id="resultadoConsulta" class="result-box" role="status"></div>
+  </form>
+
+  <!-- Cadastro -->
+  <form class="form-group" onsubmit="return false;" aria-label="Cadastro de Host">
+    <input type="text" id="hostInput" placeholder="Ex: CPSDAAZFAAUT1" />
+    <input type="text" id="problemaInput" placeholder="Nome do problema" />
+    <input type="text" id="resolucaoInput" placeholder="Resolução do problema" />
+    <input type="text" id="timeInput" placeholder="Time responsável" />
+    <input type="text" id="emailInput" placeholder="Email(s) de contato" />
+    <button type="button" onclick="cadastrarHost()">Cadastrar</button>
+  </form>
+
+  <!-- Deleção -->
+  <form class="form-group" onsubmit="return false;" aria-label="Deletar Host">
+    <input type="text" id="deletarHost" placeholder="Digite o host a deletar" />
+    <button type="button" onclick="deletarHost()">Deletar</button>
+    <div id="resultadoDelecao" class="result-box" role="status"></div>
+  </form>
+</section>
+
+<!-- Seção Redes -->
+<section id="redes" class="section" aria-labelledby="titulo-redes">
+  <h2 id="titulo-redes">🌐 Redes</h2>
+  <p style="text-align: center;">Área para gerenciamento das redes.</p>
+</section>
+
+<!-- Seção Dashboard -->
+<section id="dashboard" class="section" aria-labelledby="titulo-dashboard">
+  <h2 id="titulo-dashboard">📊 Dashboard de Incidentes</h2>
+  <div id="dashboardContainer">
+    <div id="estatisticasDashboard">
+      <div id="numHosts"></div>
+      <div id="problemaMaisFrequente"></div>
+      <div id="hostsPorTime"></div>
+      <div id="ultimoHost"></div>
+    </div>
+    <canvas id="graficoProblema" width="400" height="400" aria-label="Gráfico de problemas" role="img"></canvas>
+  </div>
+</section>
+
+<!-- Rodapé -->
+<footer role="contentinfo">
+  <p>&copy; 2025 Nava-Technology. Todos os direitos reservados.</p>
+</footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="scripts.js"></script>
+</body>
+</html>
